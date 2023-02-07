@@ -52,7 +52,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.me2zen.dev",
+      "identifier": "com.me2zen.mapeditor2",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
