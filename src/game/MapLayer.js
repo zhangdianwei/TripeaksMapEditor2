@@ -437,20 +437,34 @@ let MapLayer = cc.Layer.extend({
     },
 
     onSmartSplitSpline: function(){
-        if (this.editNode.children.length!=1) {
-            this.showTip("只能有一条总线");
+        if (this.editNode.children.length!=4) {
+            this.showTip(`必须有${this.editNode.children.length}/4条总线`);
             return;
         }
 
-        let total = this.editNode.children[0];
-        total.setEntryNum(300);
+        let totals = this.editNode.children.slice();
+        for(let i=0; i<totals.length; ++i)
+        {
+            let total = totals[i];
+            this.smartSplitSplineOne(total);
+        }
+
+        for(let i=0; i<totals.length; ++i)
+        {
+            let total = totals[i];
+            total.removeFromParent();
+        }
+        this.rebuildLevelNum();
+    },
+    smartSplitSplineOne: function(total){
+        total.setEntryNum(75);
 
         // 布点：在所有关卡点的位置，生成控制点
         let positions = total.getEntryPoints(total.entryNum);
         total.resetPoints(positions);
 
-        // 找出12个宝箱的位置
-        positions = total.getEntryPoints(13);
+        // 找出3个宝箱的位置
+        positions = total.getEntryPoints(4);
         positions.shift(); //删掉第一个没用的
         // 给找出的位置上都加上宝箱
         for(let i=0; i<positions.length; ++i)
@@ -475,10 +489,6 @@ let MapLayer = cc.Layer.extend({
             node.resetPoints(points);
             node.setEntryNum(25);
         }
-
-        total.removeFromParent();
-        this.rebuildLevelNum();
     },
-
 });
 
