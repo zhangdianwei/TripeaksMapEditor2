@@ -1,0 +1,29 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Solitaire World</title>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <link rel="stylesheet" type="text/css" href="src/style.css"/>
+</head>
+<body>
+    <div class="flex-v">
+        <div style="height: 20px;"></div>
+
+        <div class="flex-h">
+            
+            <div id="game_frame" style="width:1386px; height:640px">
+                <canvas id="gameCanvas"></canvas>
+            </div>
+            <script src='src/frameworks/cocos2d-html5/CCBoot.js'></script>
+            <script type="module" src="src/game/main-game.js"></script>
+
+            <div style="width: 50px;"></div>
+
+            <div id="app"></div>
+            <script type="module" src="src/vue/main-vue.js"></script>
+        </div>
+
+    </div>
+    
+</body>
+</html>
