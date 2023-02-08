@@ -6,7 +6,7 @@ import { Command } from '@tauri-apps/api/shell'
 const pageIndex = ref(0); //选择的是哪个标签页
 const chapterNum = ref(0); //要加载哪一章地图
 
-const errIndexes = ref([1]); //当前是否有错误
+const errLogs = ref([]); //当前是否有错误 [{type:1, msg:"xxx"}]
 
 async function onChangeChapter(){
   let doc = {chapterNum:chapterNum.value};
@@ -69,25 +69,25 @@ function onClearStorage(){
 }
 
 async function checkAppCanStart(){
-  let errIds = [];
+  let tmp_errLogs = [];
 
-  let git_root = window.localStorage.getItem("git_root");
+  let git_root = window.localStorage.getItem("git_root") || "";
 
-  if (!git_root || !await fs.exists(git_root)) {
-    errIds.push(1);
+  if (!await fs.exists(git_root)) {
+    tmp_errLogs.push({type:1, msg:"找不到TripeaksResources目录"});
   }
 
   let exists = await fs.exists(`${git_root}/ResourcesTripeasks_B/Resources`);
   if (!exists) {
-    errIds.push(1);
+    tmp_errLogs.push({type:1, msg:"找不到ResourcesTripeasks_B/Resources目录"});
   }
 
   exists = await fs.exists(`${git_root}/importMapPoint2.py`);
   if (!exists) {
-    errIds.push(2);
+    tmp_errLogs.push({type:1, msg:`找不到${git_root}/importMapPoint2.py`});
   }
 
-  if (errIds.length==0) {
+  if (tmp_errLogs.length==0) {
     for(let i=100; i>0; --i)
     {
       let d = `${git_root}/ResourcesTripeasks_B/Resources/world_${i}_opt`;
@@ -99,7 +99,13 @@ async function checkAppCanStart(){
     }
   }
 
-  errIndexes.value = Array.from(new Set(errIds))
+  errLogs.value = [];
+  for(let i in tmp_errLogs)
+  {
+    if (!errLogs.value.find((x)=>x.type==tmp_errLogs[i].type)) {
+      errLogs.value.push(tmp_errLogs[i]);
+    }
+  }
 }
 
 async function onLoadDoc() {
@@ -159,7 +165,7 @@ main();
   <div v-if="pageIndex==0">
     <hr/>
 
-    <div v-if="errIndexes.length==0">
+    <div v-if="errLogs.length==0">
       <div>
         跳转到章节：<input type="number" v-model="chapterNum"/>
         <button @click="onChangeChapter">跳转</button>
@@ -181,12 +187,9 @@ main();
     <div v-else>
 
       <p>以下错误待解决：</p>
-      <div v-for="errId in errIndexes">
-        <div v-if="errId==1">
-          未设置资源git目录：<button @click="onSetResourceRoot">未设置资源git目录</button>
-        </div>
-        <div v-if="errId==2">
-          找不到importMapPoint2.py：<button @click="onSetResourceRoot">重新设置资源git目录</button>
+      <div v-for="errLog in errLogs">
+        <div v-if="errLog.type==1">
+          {{errLog.msg}}<button @click="onSetResourceRoot">设置资源git目录</button>
         </div>
       </div>
 
