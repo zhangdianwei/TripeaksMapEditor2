@@ -30,8 +30,13 @@
         "execute": true,
         "scope": [
           {
-            "name": "save-doc-ccb",
-            "cmd": "python2",
+            "name": "python2-1",
+            "cmd": "/usr/local/bin/python2",
+            "args": true
+          },
+          {
+            "name": "python2-2",
+            "cmd": "/usr/bin/python2",
             "args": true
           }
         ]

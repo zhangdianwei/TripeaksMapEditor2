@@ -40,14 +40,35 @@ async function onExportCCBDoc(){
     `${chests}`,
   ];
   
-  let cmd = new Command('save-doc-ccb', args, {cwd:git_root});
-  let output = await cmd.execute();
-  if (output.code || output.stderr) {
-    alert(`code=${output.code}:${output.stderr}`);
-    return;
+  let succeed = false;
+  let errMsg = "";
+  for(let i=1; i<=2; ++i)
+  {
+    try
+    {
+      let cmd = new Command(`python2-${i}`, args, {cwd:git_root});
+      let output = await cmd.execute();
+      if (output.code==0 && !output.stderr)
+      {
+        succeed = true;
+        break;
+      }
+      else
+      {
+        errMsg += `code=${output.code}:${output.stderr}\n`;
+      }
+    }
+    catch(ex)
+    {
+      errMsg += ex+"\n";
+    }
   }
-
-  alert("导出成功");
+  if (succeed) {
+    alert("导出成功");
+  }
+  else{
+    alert(errMsg);
+  }  
 }
 
 async function onSetResourceRoot(){
@@ -68,7 +89,7 @@ function onClearStorage(){
   checkAppCanStart();
 }
 
-async function checkAppCanStart(){
+async function checkResourceGitRoot(){
   let tmp_errLogs = [];
 
   let git_root = window.localStorage.getItem("git_root") || "";
@@ -87,7 +108,35 @@ async function checkAppCanStart(){
     tmp_errLogs.push({type:1, msg:`找不到${git_root}/importMapPoint2.py`});
   }
 
-  if (tmp_errLogs.length==0) {
+  return tmp_errLogs;
+}
+
+async function checkPython2()
+{
+  let tmp_errLogs = [];
+
+  let cmd = new Command('where');
+  let output = await cmd.execute();
+  if (output.code!=0) {
+    tmp_errLogs.push({type:2, msg:output.stdout});
+  }
+  else {
+    let lines = output.stdout.split();
+    console.log(lines);
+  }
+
+  return tmp_errLogs;
+}
+
+async function checkAppCanStart(){
+  let tmp_errLogs = [];
+  tmp_errLogs = tmp_errLogs.concat(await checkResourceGitRoot());
+  // tmp_errLogs.concat(await checkPython2());
+
+  if (tmp_errLogs.length==0)
+  {
+    let git_root = window.localStorage.getItem("git_root") || "";
+
     for(let i=100; i>0; --i)
     {
       let d = `${git_root}/ResourcesTripeasks_B/Resources/world_${i}_opt`;
@@ -98,6 +147,8 @@ async function checkAppCanStart(){
       }
     }
   }
+
+  console.log(tmp_errLogs);
 
   errLogs.value = [];
   for(let i in tmp_errLogs)
