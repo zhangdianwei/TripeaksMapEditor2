@@ -2604,9 +2604,34 @@ cc.game = /** @lends cc.game# */{
                     }
                     txt = cc.loader._loadTxtSync(_src);
                 }
-                if(!txt){
-                    txt = cc.loader._loadTxtSync("project.json");
-                }
+                // if(!txt){
+                //     txt = cc.loader._loadTxtSync("project.json");
+                // }
+                txt = `
+{
+    "project_type": "javascript",
+
+    "debugMode" : 1,
+    "showFPS" : false,
+    "frameRate" : 60,
+    "id" : "gameCanvas",
+    "renderMode" : 0,
+    "engineDir":"src/frameworks/cocos2d-html5",
+
+    "modules" : ["cocos2d", "extensions"],
+
+    "jsList" : [
+        "src/game/SplineNode.js",
+        "src/game/ChestNode.js",
+        "src/game/SplineEntryNode.js",
+        "src/game/MapLayer.js"
+    ],
+
+    "plugin" : {
+
+    }
+}
+                `;
                 data = JSON.parse(txt);
             } catch (e) {
                 cc.log("Failed to read or parse project.json");

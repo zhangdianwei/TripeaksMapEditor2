@@ -1,9 +1,3 @@
-import { BaseDirectory, writeFile,readBinaryFile } from '@tauri-apps/api/fs'
-
-// 由于在cocos中无法访问tauri-api，所以需要这样的一个全局的工具类
-class Game{
-}
-window.game = new Game();
 
 function onGameStart(){
     let scene = new cc.Scene();
