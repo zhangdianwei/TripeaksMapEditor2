@@ -198,6 +198,18 @@ async function onSaveDoc() {
   alert("保存成功");
 }
 
+function safe(fun)
+{
+  try
+  {
+    fun();
+  }
+  catch(ex)
+  {
+    alert(ex);
+  }
+}
+
 function main(){
   checkAppCanStart();
 }
@@ -219,20 +231,20 @@ main();
     <div v-if="errLogs.length==0">
       <div>
         跳转到章节：<input type="number" v-model="chapterNum"/>
-        <button @click="onChangeChapter">跳转</button>
+        <button @click="safe(onChangeChapter)">跳转</button>
       </div>
 
       <hr/>
-        <button @click="onLoadDoc">加载曲线</button>
-        <button @click="onSaveDoc">保存曲线</button>
-        <button @click="onClearStorage">清空storage</button>
+        <button @click="safe(onLoadDoc)">加载曲线</button>
+        <button @click="safe(onSaveDoc)">保存曲线</button>
+        <button @click="safe(onClearStorage)">清空storage</button>
       <div>
 
       </div>
       <hr/>
 
       <div>
-        <button @click="onExportCCBDoc">导出到ccb</button>
+        <button @click="safe(onExportCCBDoc)">导出到ccb</button>
       </div>
     </div>
     <div v-else>
