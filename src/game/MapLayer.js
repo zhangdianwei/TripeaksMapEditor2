@@ -375,10 +375,31 @@ let MapLayer = cc.Layer.extend({
     reload_bg: function(){
         let root = `${window.localStorage.getItem("git_root")}/ResourcesTripeasks_B/Resources`;
         let files = [];
-        for(let i=0; i<12; ++i)
-        {
-            files.push(`${root}/world_${this.doc.chapterNum}_opt/lobby/map/sprite/lobby${this.doc.chapterNum}_${i+1}.jpg`);
+        if (this.doc.chapterNum===1) {
+            for(let i=0; i<10; ++i)
+            {
+                files.push(`${root}/lobby/map/world_${this.doc.chapterNum}/sprite/lobby${this.doc.chapterNum}_${i+1}.jpg`);
+            }
         }
+        else if (this.doc.chapterNum===2) {
+            for(let i=0; i<8; ++i)
+            {
+                files.push(`${root}/lobby/map/world_${this.doc.chapterNum}/sprite/lobby${this.doc.chapterNum}_${i+1}.jpg`);
+            }
+        }
+        else if (this.doc.chapterNum===3) {
+            for(let i=0; i<10; ++i)
+            {
+                files.push(`${root}/lobby/map/world_${this.doc.chapterNum}/sprite/lobby${this.doc.chapterNum}_${i+1}.jpg`);
+            }
+        }
+        else{
+            for(let i=0; i<12; ++i)
+            {
+                files.push(`${root}/world_${this.doc.chapterNum}_opt/lobby/map/sprite/lobby${this.doc.chapterNum}_${i+1}.jpg`);
+            }
+        }
+
         files = files.map((x)=>window.__TAURI__.tauri.convertFileSrc(x));
 
         this.moveNode.setPosition(0,0);
