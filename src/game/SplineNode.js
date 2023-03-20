@@ -23,9 +23,13 @@ SplineNode = cc.Node.extend({
         this.refreshView();
     },
 
-    resetPoints: function(points){
+    setPoints: function(points){
         this.points = points;
         this.refreshView();
+    },
+
+    getPoints: function(){
+        return this.points;
     },
 
     setEntryNum: function(entryNum){
@@ -250,5 +254,13 @@ SplineNode = cc.Node.extend({
     },
     getLevelNumEnd: function(){
         return this.levelNum+this.entryNum-1;
+    },
+
+    getPickIndex: function(){
+        return this.pickIndex;
+    },
+    setPickIndex: function(pickIndex){
+        this.pickIndex = pickIndex;
+        this.refreshView();
     },
 });

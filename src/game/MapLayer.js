@@ -21,6 +21,15 @@ let MapLayer = cc.Layer.extend({
             onMouseScroll: this.onMouseScroll.bind(this),
         }, this);
 
+        // cc.eventManager.addListener({
+        //     event: cc.EventListener.TOUCH_ONE_BY_ONE,
+        //     swallowTouches: true,
+        //     onTouchBegan: this.onTouchBegan.bind(@),
+        //     onTouchMoved: this.onTouchMoved.bind(@),
+        //     onTouchEnded: this.onTouchEnded.bind(@),
+        //     onTouchCancelled: this.onTouchCancelled.bind(@),
+        // }, this);
+
         cc.eventManager.addListener({
             event: cc.EventListener.KEYBOARD,
             onKeyPressed: this.onKeyPressed.bind(this),
@@ -44,7 +53,7 @@ let MapLayer = cc.Layer.extend({
 
         this.pickNodes = []; //所有选中的节点
 
-        this.mousePosition = cc.p(0,0);
+        this.mousePosition = null;
 
         this.menuNode = this.createMenuNode();
         this.addChild(this.menuNode);
@@ -54,6 +63,7 @@ let MapLayer = cc.Layer.extend({
     createMenuNode: function(){
         let menuNode = new cc.Node();
         menuNode.addChild(this.createButton("创建曲线", this.onCreateSpline.bind(this)));
+        menuNode.addChild(this.createButton("断开曲线", this.onSplitSpline.bind(this)));
         menuNode.addChild(this.createButton("创建宝箱", this.onCreateChest.bind(this)));
         menuNode.addChild(this.createButton("300关切割", this.onSmartSplitSpline.bind(this)));
         for(let i=0; i<menuNode.children.length; ++i)
@@ -101,6 +111,54 @@ let MapLayer = cc.Layer.extend({
         this.showMenu(null);
     },
 
+    onSplitSpline: function(){
+        this.showMenu(null);
+
+        if (this.pickNodes.length==0) {
+            this.showTip("请先选择一个节点");
+            return;
+        }
+
+        let points = this.pickNodes[0].getPoints();
+        let pickIndex = this.pickNodes[0].getPickIndex();
+
+        if (points.length<5) {
+            this.showTip("至少得有5个点");
+            return;
+        }
+
+        let selectedPoint = points[pickIndex];
+
+        let prePoints = points.slice(0, pickIndex);
+        let nextPoints = points.slice(pickIndex+2);
+
+        if (prePoints.length<=1) {
+            this.showTip("前两个节点没法分割");
+            return;
+        }
+
+        if (nextPoints.length<=1) {
+            this.showTip("最后两个节点没法分割");
+            return;
+        }
+
+        console.log(prePoints, nextPoints);
+
+        // prePoints.push(cc.p(selectedPoint.x, selectedPoint.y));
+        // nextPoints.unshift(cc.p(selectedPoint.x, selectedPoint.y));
+
+        this.pickNodes[0].setPickIndex(-1);
+        this.pickNodes[0].setPoints(prePoints);
+
+        let node = new SplineNode();
+        this.editNode.addChild(node);
+        let loc = this.editNode.convertToNodeSpace(this.mousePosition);
+        node.setPosition(this.pickNodes[0].getPosition());
+        node.setPoints(nextPoints);
+
+        this.rebuildLevelNum();
+    },
+
     onCreateChest: function(){
         let node = new ChestNode();
         this.editNode.addChild(node);
@@ -117,18 +175,26 @@ let MapLayer = cc.Layer.extend({
     },
 
     onMouseDown:function(event) {
-        // console.log("mouse", JSON.stringify(event.getLocation()));
-        this.showMenu(null);
+        // console.log("onMouseDown", JSON.stringify(event.getLocation()));
 
-        for(let i=0; i<this.pickNodes.length; ++i)
+        if (event.getButton()==cc.EventMouse.BUTTON_LEFT && this.menuNode.isVisible())
         {
-            this.pickNodes[i].onSelect(event, false);
+            this.showMenu(null);
+            return;
         }
-        this.pickNodes.length = 0;
 
-        let pickNode = this.editNode.children.find((node)=>node.onSelect(event, true));
-        if (pickNode) {
-            this.pickNodes.push(pickNode);
+        if (event.getButton()==cc.EventMouse.BUTTON_LEFT)
+        {
+            for(let i=0; i<this.pickNodes.length; ++i)
+            {
+                this.pickNodes[i].onSelect(event, false);
+            }
+            this.pickNodes.length = 0;
+
+            let pickNode = this.editNode.children.find((node)=>node.onSelect(event, true));
+            if (pickNode) {
+                this.pickNodes.push(pickNode);
+            }
         }
     },
     onMouseMove:function(event){
@@ -174,6 +240,7 @@ let MapLayer = cc.Layer.extend({
                 node.setEntryNum(entryNum);
             }
         }
+        this.rebuildLevelNum();
     },
 
     onSubEntryNum: function(){
@@ -482,7 +549,7 @@ let MapLayer = cc.Layer.extend({
 
         // 布点：在所有关卡点的位置，生成控制点
         let positions = total.getEntryPoints(total.entryNum);
-        total.resetPoints(positions);
+        total.setPoints(positions);
 
         // 找出3个宝箱的位置
         positions = total.getEntryPoints(4);
@@ -507,7 +574,7 @@ let MapLayer = cc.Layer.extend({
             let node = new SplineNode();
             this.editNode.addChild(node);
             node.setPosition(total.getPosition());
-            node.resetPoints(points);
+            node.setPoints(points);
             node.setEntryNum(25);
         }
     },
