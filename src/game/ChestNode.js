@@ -76,7 +76,13 @@ ChestNode = cc.Node.extend({
         let obj = {};
         obj.x = parseFloat(this.x.toFixed(1));
         obj.y = parseFloat(this.y.toFixed(1));
-        obj.aei = this.levelNum*25;
+        let entries = doc.entries;
+        for (let i = 0; i < entries.length; i++) {
+            let entryPoint = entries[i];
+            if (this.x > entryPoint.x)
+                obj.aei = i + 1;
+        }
+
         doc.chests.push(obj);
     },
 
